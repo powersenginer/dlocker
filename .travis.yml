@@ -1,0 +1,17 @@
+sudo: required
+
+before_install:
+    - docker pull socalucr/gpgpu-sim
+
+language: cpp
+
+matrix:
+  include:
+    - services: docker
+      env:
+        - CONFIG=GTX480
+        - CUDA_INSTALL_PATH=/usr/local/cuda-4.2/
+        - PTXAS_CUDA_INSTALL_PATH=/usr/local/cuda-4.2/
+
+script: docker run -v
+
