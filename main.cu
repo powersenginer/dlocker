@@ -49,7 +49,9 @@ int main (int argc, char *argv[])
       "\n");
         exit(0);
     }
-
+   
+    srand(217);
+ 
     A_sz = matArow*matAcol;
     B_sz = matBrow*matBcol;
     C_sz = matArow*matBcol;
