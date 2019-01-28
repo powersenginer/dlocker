@@ -16,6 +16,7 @@ void verify(float *A, float *B, float *C, unsigned int m, unsigned int k,
   unsigned int n) {
 
   const float relativeTolerance = 1e-6;
+  unsigned int count = 0;
 
   for(int row = 0; row < m; ++row) {
     for(int col = 0; col < n; ++col) {
@@ -23,16 +24,17 @@ void verify(float *A, float *B, float *C, unsigned int m, unsigned int k,
       for(unsigned int i = 0; i < k; ++i) {
         sum += A[row*k + i]*B[i*n + col];
       }
+      count++;
       float relativeError = (sum - C[row*n + col])/sum;
       printf("%f/%f ", sum, C[row*n + col]);
       if (relativeError > relativeTolerance
         || relativeError < -relativeTolerance) {
-        printf("TEST FAILED\n\n");
-        exit(0);
+        printf("\nTEST FAILED %u\n\n",count);
+        exit(1);
       }
     }
   }
-  printf("TEST PASSED\n\n");
+  printf("TEST PASSED %u\n\n", count);
 
 }
 
