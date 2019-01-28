@@ -9,5 +9,5 @@ before_install:
 language: cpp
 
 
-script: docker run -v ${TRAVIS_BUILD_DIR}:/root/src/ socalucr/gpgpu-sim /bin/bash -c "cd gpgpu-sim_distribution/; source setup_environment; make; cd /root/src/; make; ./sgemm-tiled; "
+script: docker run -v ${TRAVIS_BUILD_DIR}:/root/src/ socalucr/gpgpu-sim /bin/bash -c "pwd; ls; cd gpgpu-sim_distribution/; source setup_environment; make; cd /root/src/; make; ./sgemm-tiled; "
 
