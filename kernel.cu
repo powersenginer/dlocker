@@ -10,7 +10,7 @@
 
 #define TILE_SIZE 16
 
-__global__ void mysgemm(int m, int n, int k, const float *A, const float *B, float* C) {
+__global__ void mysgemm(int m, int n, int k, const float *M, const float *N, float* P) {
 
     /********************************************************************
      *
@@ -24,11 +24,35 @@ __global__ void mysgemm(int m, int n, int k, const float *A, const float *B, flo
      ********************************************************************/
 
     // INSERT KERNEL CODE HERE
-
-
-
-
-
+    
+    int bx = blockIdx.x;  
+    int by = blockIdx.y;  
+    int tx = threadIdx.x; 
+    int ty = threadIdx.y;
+    
+    int Row = by * blockDim.y + ty;
+	int Col = bx * blockDim.x + tx;
+	
+	float Pvalue = 0;
+	
+	for (int p = 0; p < (Width-1) / TILE_WIDTH + 1; ++p) {
+		if(Row < Width && t * TILE_WIDTH+tx < Width) {
+			ds_M[ty][tx] = M[Row * Width + p * TILE_WIDTH + tx];} 
+		else {
+			ds_M[ty][tx] = 0.0;}
+		if (p*TILE_WIDTH+ty < Width && Col < Width) {
+			ds_N[ty][tx] = N[(p*TILE_WIDTH + ty) * Width + Col];} 
+		else {
+			ds_N[ty][tx] = 0.0;}
+			__syncthreads();
+		if(Row < Width && Col < Width) {
+			for (int i = 0; i < TILE_WIDTH; ++i) {
+				Pvalue += ds_M[ty][i] * ds_N[i][tx];}
+		}
+		__syncthreads();
+	} /* end of outer for loop */
+	if (Row < Width && Col < Width) {
+		P[Row*Width + Col] = Pvalue;} /* end of kernel */
 
 
 
@@ -88,14 +112,14 @@ void basicSgemm(char transa, char transb, int m, int n, int k, float alpha, cons
 
     //INSERT CODE HERE
 
-
-
-
+	dim3 DimGrid((n-1)/BLOCK_SIZE + 1, (n-1)/BLOCK_SIZE + 1, 1);
+	dim3 DimBlock(BLOCK_SIZE ,  BLOCK_SIZE, 1);
+	
     // Invoke CUDA kernel -----------------------------------------------------
 
     //INSERT CODE HERE
-
-
+  
+	mysgemm<<<DimGrid  ,  DimBlock>>>(m, n, k, A, B, C);
 
 
 }
