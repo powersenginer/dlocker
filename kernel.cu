@@ -10,7 +10,7 @@
 
 #define TILE_SIZE 16
 
-__global__ void mysgemm(int m, int n, int k, const float *M, const float *N, float* P) {
+__global__ void mysgemm(int m, int n, int k, const float *A, const float *B, float* C) {
 
     /********************************************************************
      *
@@ -24,6 +24,9 @@ __global__ void mysgemm(int m, int n, int k, const float *M, const float *N, flo
      ********************************************************************/
 
     // INSERT KERNEL CODE HERE
+    const int TILE_WIDTH = TILE_SIZE;
+    __shared__ float  M[TILE_WIDTH][TILE_WIDTH];
+	__shared__ float  N[TILE_WIDTH][TILE_WIDTH];
     
     int bx = blockIdx.x;  
     int by = blockIdx.y;  
@@ -33,54 +36,31 @@ __global__ void mysgemm(int m, int n, int k, const float *M, const float *N, flo
     int Row = by * blockDim.y + ty;
 	int Col = bx * blockDim.x + tx;
 	
+	
+	int M_Width = m;
+	int N_Width = n;
+	int P_Width = n;
+	
 	float Pvalue = 0;
 	
-	for (int p = 0; p < (Width-1) / TILE_WIDTH + 1; ++p) {
-		if(Row < Width && t * TILE_WIDTH+tx < Width) {
-			ds_M[ty][tx] = M[Row * Width + p * TILE_WIDTH + tx];} 
+	for (int p = 0; p < (P_Width-1) / TILE_WIDTH + 1; ++p) {
+		if(Row < M_Width && p* TILE_WIDTH+tx < M_Width) {
+			M[ty][tx] = A[Row * M_Width + p * TILE_WIDTH + tx];} 
 		else {
-			ds_M[ty][tx] = 0.0;}
-		if (p*TILE_WIDTH+ty < Width && Col < Width) {
-			ds_N[ty][tx] = N[(p*TILE_WIDTH + ty) * Width + Col];} 
+			M[ty][tx] = 0.0;}
+		if (p*TILE_WIDTH+ty < N_Width && Col < N_Width) {
+			N[ty][tx] = B[(p*TILE_WIDTH + ty) *N_Width + Col];} 
 		else {
-			ds_N[ty][tx] = 0.0;}
+			N[ty][tx] = 0.0;}
 			__syncthreads();
-		if(Row < Width && Col < Width) {
+		if(Row < P_Width && Col < P_Width) {
 			for (int i = 0; i < TILE_WIDTH; ++i) {
-				Pvalue += ds_M[ty][i] * ds_N[i][tx];}
+				Pvalue += M[ty][i]  * N[i][tx];}
 		}
 		__syncthreads();
 	} /* end of outer for loop */
-	if (Row < Width && Col < Width) {
-		P[Row*Width + Col] = Pvalue;} /* end of kernel */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	if (Row < P_Width && Col < P_Width) {
+		C[Row*P_Width + Col] = Pvalue;} /* end of kernel */
 
 }
 
@@ -120,7 +100,6 @@ void basicSgemm(char transa, char transb, int m, int n, int k, float alpha, cons
     //INSERT CODE HERE
   
 	mysgemm<<<DimGrid  ,  DimBlock>>>(m, n, k, A, B, C);
-
 
 }
 

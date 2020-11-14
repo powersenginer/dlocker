@@ -22,12 +22,15 @@ int main (int argc, char *argv[])
     printf("\nSetting up the problem..."); fflush(stdout);
     startTime(&timer);
 
+    int n = 1000;
+    // size_t bytes = n*sizeof(float);
     float *A_h, *B_h, *C_h;
     float *A_d, *B_d, *C_d;
     size_t A_sz, B_sz, C_sz;
     unsigned matArow, matAcol;
     unsigned matBrow, matBcol;
     dim3 dim_grid, dim_block;
+
 
     if (argc == 1) {
         matArow = 1000;
@@ -50,8 +53,6 @@ int main (int argc, char *argv[])
         exit(0);
     }
    
-    
- 
     A_sz = matArow*matAcol;
     B_sz = matBrow*matBcol;
     C_sz = matArow*matBcol;
@@ -74,17 +75,9 @@ int main (int argc, char *argv[])
     startTime(&timer);
 
     //INSERT CODE HERE
-    float *A_d, *B_d, *C_d;
-    cudaMalloc(&A_d, bytes);
-	cudaMalloc(&B_d, bytes);
-	cudaMalloc(&C_d, bytes);
-
-
-
-
-
-
-
+    cudaMalloc(&A_d, A_sz);
+	cudaMalloc(&B_d, B_sz);
+	cudaMalloc(&C_d, C_sz);
 
     cudaDeviceSynchronize();
     stopTime(&timer); printf("%f s\n", elapsedTime(timer));
@@ -95,10 +88,8 @@ int main (int argc, char *argv[])
     startTime(&timer);
 
     //INSERT CODE HERE
-   cudaMemcpy(A_d, A_h.data(), bytes, cudaMemcpyHostToDevice);
-   cudaMemcpy(B_d, B_h.data(), bytes, cudaMemcpyHostToDevice);
-
-
+   cudaMemcpy(A_d, A_h, A_sz, cudaMemcpyHostToDevice);
+   cudaMemcpy(B_d, B_h, B_sz, cudaMemcpyHostToDevice);
 
 
     cudaDeviceSynchronize();
@@ -120,7 +111,7 @@ int main (int argc, char *argv[])
     startTime(&timer);
 
     //INSERT CODE HERE
-	cudaMemcpy(C_h.data(), C_d, bytes, cudaMemcpyDeviceToHost);
+	cudaMemcpy(C_h, C_d, C_sz, cudaMemcpyDeviceToHost);
 	
 
 
