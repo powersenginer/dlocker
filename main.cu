@@ -22,7 +22,6 @@ int main (int argc, char *argv[])
     printf("\nSetting up the problem..."); fflush(stdout);
     startTime(&timer);
 
-    int n = 1000;
     // size_t bytes = n*sizeof(float);
     float *A_h, *B_h, *C_h;
     float *A_d, *B_d, *C_d;
