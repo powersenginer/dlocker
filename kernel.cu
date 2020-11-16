@@ -92,7 +92,7 @@ void basicSgemm(char transa, char transb, int m, int n, int k, float alpha, cons
 
     //INSERT CODE HERE
 
-	dim3 DimGrid((m-1)/BLOCK_SIZE + 1, (n-1)/BLOCK_SIZE + 1, 1);
+	dim3 DimGrid((n-1)/BLOCK_SIZE + 1, (m-1)/BLOCK_SIZE + 1, 1);
 	dim3 DimBlock(BLOCK_SIZE ,  BLOCK_SIZE, 1);
 	
     // Invoke CUDA kernel -----------------------------------------------------
