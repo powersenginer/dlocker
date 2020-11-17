@@ -45,7 +45,7 @@ __global__ void mysgemm(int m, int n, int k, const float *A, const float *B, flo
 	
 	for (int p = 0; p < (k - 1) / TILE_WIDTH + 1; ++p) {
 		if(Row < M_Width && p* TILE_WIDTH+tx < k) {
-			M[ty][tx] = A[Row * M_Width + p * TILE_WIDTH + tx];} 
+			M[ty][tx] = A[Row * k + p * TILE_WIDTH + tx];} 
 		else {
 			M[ty][tx] = 0.0;}
 		if (p*TILE_WIDTH+ty < k && Col < N_Width) {
